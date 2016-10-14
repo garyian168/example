@@ -1,0 +1,68 @@
+<html>
+<head>
+<title>jQuery Ajax (get and post)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js?ver=1.9.1"></script>
+<script>
+// $(document).ready(function() {
+// 	// 为 GET 按钮添加事件
+// 	$("#getbtn").click(function() {
+// 		$.get("ajaxpage.php", {username:$("#username").val()}, function(data) {
+// 			$("#ajaxdata").html(data); // 将服务端返回的数据填充到 P 标签中
+// 		});
+// 	});
+	
+// 	// 为 POST 按钮添加事件
+// 	$("#postbtn").click(function() {
+// 		$.post("ajaxpage.php", {username:$("#username").val()}, function(data) {
+// 			$("#ajaxdata").html(data); // 将服务端返回的数据填充到 P 标签中
+// 		});
+// 	});
+// });
+
+$(document).ready(function() {
+	// 全局 Ajax 设定，这里的设置将对本页面所有 Ajax 方法适用
+	$.ajaxSetup({
+		url: "ajaxpage.php", // Ajax 提交页
+		timeout: 3000, // 超时设置，单位为毫秒
+		error: function() { // Ajax 发生错误时
+			alert("error!");
+		}
+	});
+	
+	// 为 GET 按钮添加事件
+	$("#getbtn").click(function() {
+		$.ajax({
+			type: "GET",
+			data: {username:$("#username").val()},
+			success: function(data) {
+				// 回调函数，将返回的数据添加到 P 标签中
+				$("#ajaxdata").html(data);
+			}
+		});
+	});
+	
+	// 为 POST 按钮添加事件
+	$("#postbtn").click(function() {
+		$.ajax({
+			type: "POST", // Ajax 提交方式
+			data: {username:$("#username").val()}, // 要提交的数据
+			success: function(data) {
+				// 回调函数，将返回的数据添加到 P 标签中
+				$("#ajaxdata").html(data);
+			}
+		});
+	});
+});
+</script>
+</head>
+<body>
+		你的大名：<input type="text" id="username" /><br />
+		<input type="button" id="getbtn" value="GET 方法" /><br />
+		<input type="button" id="postbtn" value="POST 方法" />
+		<p id="ajaxdata"></p>
+</body>
+<script>
+
+</script>
+</html>
