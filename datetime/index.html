@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Index</title>
+
+<script src="moment.min.js"></script>
+<script src="http://cdn.bootcss.com/jquery/1.9.1/jquery.min.js"></script>
+</head>
+
+<body>
+
+    	<p>当前时间：<span>moment().format('YYYY-MM-DD HH:mm:ss');</span></p>
+        <script>
+		var datetime = moment().format('YYYY-MM-DD HH:mm:ss'); 
+		document.write(datetime);
+		</script>
+        
+		<br><br><br>
+
+		<input type="text" name="" id="val_day">
+		<button type="submit" id="btn">确认</button>
+        <p id="attr">N天后的日期：<span>moment().add('days',7).format('YYYY年MM月DD日');</span></p>
+        <div id="show"></div>
+        <script>
+
+    	$(document).ready(function(){
+			$("#btn").click(function(){
+
+			var val_day=$("#val_day").val();
+			var d3 = moment().add('days',val_day).format('YYYY年MM月DD日');
+			$("#show").html(d3);
+			ajaxReturn();
+			})
+			
+	function ajaxReturn(){
+			var val_day=$("#val_day").val();
+	        $.ajax({
+	            type: "GET",
+	            url: "res.php",
+	            data: {res:val_day},
+	            dataType: "html",
+	            cache: false,
+	            async: true,
+	            success:function(data){
+					console.info(val_day);
+					$("#attr").html(data+"天后的日期：moment().add('days',7).format('YYYY年MM月DD日');");
+	            }
+			})
+	}
+
+})
+		</script>
+        
+
+
+        
+
+ 
+
+</body>
+
+
+</html>

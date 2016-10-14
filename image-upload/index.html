@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>demoIndex</title>
+</head>
+<script src="https://cdn.bootcss.com/jquery/1.9.1/jquery.min.js"></script>
+<body>
+
+<input type="text" name="" id="name">
+<button>POST</button>
+<div id="showValue"></div>
+
+</body>
+<script>
+	$(document).ready(function(){
+		$("button").click(function(){
+			var uname=$("#name").val();
+		$.ajax({
+            type:"post",
+            url:"index.php",
+            data:{name:uname,color:"red"},
+            dataType:"html",
+              success:function(data,status){
+                $("#showValue").html(data);
+              }
+          })
+		})
+	})
+</script>
+</html>
