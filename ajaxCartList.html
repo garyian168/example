@@ -1,0 +1,168 @@
+<!-- 循环体 -->
+<volist name="cartList" id="vo">
+<div class="list-shop">
+    <div class="list-shop-item" style="width:100%;position: relative;">
+        <!-- 复选框 待启用 -->
+        <!-- <div class="listDiv" style="width:24px;margin-top: 30px;">
+            <span>
+                <input type="checkbox" name="shopsel[]" >
+            </span>
+        </div> -->
+        <!-- 商品图 -->
+        <div class="listDiv" style="height: 80px;">
+            <img src="{$vo.prom_img}" class="img-thumbnail" width="80" height="80" title="点击查看" alt="shop">
+        </div>
+        <!-- 商品详情 -->
+        <div class="listDiv middleList" style="width: 60%;height: 105px">
+            <span class="d-title" style="margin: 0 0 5px;height: 34px">{$vo.goods_name}</span>
+            <p class="d-title" style="margin: 0 0 2px;color:#999;">属性：{$vo.prom_type}</p>
+            <div class="" style="width: 105px">
+                <div class="input-group numText">
+                    <span class="input-group-addon input-ico" data-val="0" data-num="{$vo.id}" >
+                        <i class="fa fa-minus"></i>
+                    </span>
+                    <input type="text" class="detailText" name="test[]" value="{$vo.goods_num}">
+                    <span class="input-group-addon input-ico" data-val="1" data-num="{$vo.id}" >
+                        <i class="fa fa-plus"></i>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <!-- 价格 -->
+        <div class="text-center listPrice">
+            <p style="margin: 0 0 5px;color:#999;text-decoration: line-through;">
+                <i class="fa fa-rmb" style="margin-right:5px" name="test1[]"></i>{$vo.market_price}
+            </p>
+            <p style="margin: 0 0 5px;color:#000;">
+                <i class="fa fa-rmb" style="margin-right:5px"></i><span class="sinPrice">{$vo.goods_price}</span>
+            </p>
+            <div class="inpDiv" style="color: #f00;font-size: 20px">
+                <span class="glyphicon glyphicon-trash glyphIcon" data-val="{$vo.id}" 
+                style="cursor: pointer;" onClick="delThis(this)"></span>
+                <!-- 复选框 -->
+                <input type="checkbox" data-val="{$vo.id}" name="shopsel[]">
+                <input type="hidden" class="dataNum" value="{$vo.selected}">
+            </div>
+        </div>
+        <!-- 去除浮动影响 -->
+        <div class="clearfix"></div>
+    </div>
+</div><!-- 循环体 -->
+</volist>
+<script>
+$(function(){
+    $('input[name*="shop"]').iCheck({ 
+      labelHover : true, 
+      cursor : true, 
+      checkboxClass : 'icheckbox_square-red', 
+      radioClass : 'iradio_square-red', 
+      increaseArea : '20%' 
+    });
+    var cartWidth=$(".list-shop").width();
+    var middleWidth=cartWidth-180;
+    $(".middleList").css("width",middleWidth+"px");
+
+    /*复选框选中状态*/
+    $(".dataNum").each(function(){
+        var thisval=$(this).val();
+        if(thisval==1){
+            $(this).prev().addClass("checked");
+        }
+    });
+
+    /*选中ajax提交*/
+    $('input[name*="shopsel"]').on('ifChanged', function(event){
+        var thisVal=$(this).attr("data-val");
+        var thisnum=$(this).parent("div").hasClass("checked");
+        if(!thisnum){
+            var num=1;
+        }else{
+            var num=0;
+        }
+        var thisInpVal=$(this).parents("div.listPrice").prev("div.middleList").find("input").val();
+        var cartData={cartID:thisVal,goods_num:thisInpVal,selected:num};
+        goAjax(cartData,num);
+    });
+    function goAjax(cartData,num){
+        $.ajax({
+            type:"post",
+            url:"<?=U('Mobile/Cart/cartList')?>",
+            data:cartData,
+            success:function(){
+                if(num==1){
+                    layer.msg("您已选中");
+                }else{
+                    layer.msg("您已取消");
+                    window.location.reload(true);
+                }
+            }
+        });
+    }
+    /*操作数量*/
+    $(".numText").on("click","span.input-ico",function(){
+        var dataVal=$(this).attr("data-val");   /* 0是减；1是加*/
+        var thisVal=$(this).siblings("input").val();  /*输入框*/
+        /*获取商品单价*/
+        var sinPrice=$(this).parents("div.middleList").next("div.listPrice").find("span.sinPrice").text(); 
+        sinPrice=parseInt(sinPrice);
+        var finPrice=$("span.finPrice").text();
+        finPrice=parseInt(finPrice);
+        if(dataVal==1){    /*点击加号*/
+            thisVal++;
+            finPrice +=sinPrice;
+        }else{    /*点击减号*/
+            if(thisVal!=1){
+                finPrice -=sinPrice;  /*总价数值*/
+            }
+            thisVal>1?thisVal=--thisVal:thisVal;  /*输入框数值*/
+        }
+        /*获取总价格*/
+        $(this).siblings("input").val(thisVal); /*改变输入框数值*/
+        $("span.finPrice").text(finPrice+".00");  /*赋值总价*/
+
+        var cartID=$(this).attr("data-num");   /*当前Id值*/
+        var thisnum=$(this).parents("div.middleList").next("div.listPrice").find("div.icheckbox_square-red").hasClass("checked");
+        if(thisnum){
+            var num=1;
+        }else{
+            var num=0;
+        }
+        var cartData={cartID:cartID,goods_num:thisVal,selected:num};
+        $.ajax({
+            type:"post",
+            url:"<?=U('Mobile/Cart/cartList')?>",
+            data:cartData,
+            success:function(){
+                
+            }
+        });
+
+    });
+    /*初始化总价*/
+    var finAllPrice=0;
+    $(".detailText").each(function(i){
+        var detailNum=$(".detailText").eq(i).val();  /*获取数量*/
+        var sinPrice=$(".sinPrice").eq(i).text();   /*获取单价*/
+        finAllPrice +=detailNum*sinPrice;   /*获取总价*/
+        $("span.finPrice").text(finAllPrice+".00");  /*赋值总价*/
+    })  
+});
+/*删除ajax*/
+function delThis(obj){
+    var thisVal=$(obj).attr("data-val");
+    if(confirm("是否确认删除？")){
+        $.ajax({
+            type:"post",
+            url:"<?=U('Mobile/Cart/ajaxDelCart')?>",
+            data:{ids :thisVal},
+            success:function(data){
+                var jsontext=JSON.parse(data);
+                if(jsontext.status==1){
+                    $(obj).parents("div.list-shop").remove();
+                    layer.msg("您已删除");
+                }
+            }
+        });
+    }  
+}
+</script>
